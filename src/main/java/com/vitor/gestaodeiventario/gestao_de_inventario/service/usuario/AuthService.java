@@ -37,23 +37,20 @@ public class AuthService {
 		if (this.repositorie.findByEmail(dto.getEmail()).isPresent()) {
 			throw new FuncionarioJaExistenteException();
 
-		} else {
-
-			try {
-				String senhaCriptografada = new BCryptPasswordEncoder().encode(dto.getSenha());
-
-				Usuario usuario = new Usuario(dto.getNome(), dto.getEmail(), senhaCriptografada,
-						RoleUsuario.FUNCIONARIO);
-
-				repositorie.save(usuario);
-
-				return ResponseEntity.ok().body("Funcionario adicionado");
-
-			} catch (Exception e) {
-				throw new FalhaAdicionarFuncionarioException();
-			}
 		}
 
+		try {
+			String senhaCriptografada = new BCryptPasswordEncoder().encode(dto.getSenha());
+
+			Usuario usuario = new Usuario(dto.getNome(), dto.getEmail(), senhaCriptografada, RoleUsuario.ADMIN);
+
+			repositorie.save(usuario);
+
+			return ResponseEntity.ok().body("Funcionario adicionado");
+
+		} catch (Exception e) {
+			throw new FalhaAdicionarFuncionarioException();
+		}
 	}
 
 	public ResponseEntity<?> login(AuthDTO dto) {

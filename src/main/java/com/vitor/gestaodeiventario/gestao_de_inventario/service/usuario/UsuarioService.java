@@ -76,14 +76,15 @@ public class UsuarioService {
 
 	public ResponseEntity<String> deletarUsuario() {
 
-		try {
-			String email = SecurityContextHolder.getContext().getAuthentication().getName();
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-			Usuario usuario = repositorie.findByEmail(email).orElseThrow(() -> new FuncionarioInvalidoException());
+		Usuario usuario = repositorie.findByEmail(email).orElseThrow(() -> new FuncionarioInvalidoException());
+
+		try {
 
 			repositorie.delete(usuario);
 
-			return ResponseEntity.ok().body("Usuario deletado");
+			return ResponseEntity.ok().body("Funcionario deletado");
 
 		} catch (Exception e) {
 			// TODO: handle exception

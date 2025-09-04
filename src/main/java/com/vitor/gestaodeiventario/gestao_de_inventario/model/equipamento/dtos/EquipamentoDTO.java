@@ -1,46 +1,30 @@
-package com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento;
+package com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.dtos;
 
-import java.util.Objects;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.StatusEquipamento;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-@Entity
-public class Equipamento {
+public class EquipamentoDTO {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Column(nullable = false)
 	@NotBlank
 	private String nome;
 
 	@NotBlank
-	@Column(nullable = false)
 	private String categoria;
 
 	@NotBlank
-	@Column(nullable = false)
 	private String localArmazenamento;
 
 	@NotNull
-	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private StatusEquipamento status;
 
-	public Equipamento() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public Equipamento(@NotBlank String nome, @NotBlank String categoria, @NotBlank String localArmazenamento,
+	public EquipamentoDTO(@NotBlank String nome, @NotBlank String categoria, @NotBlank String localArmazenamento,
 			@NotNull StatusEquipamento status) {
 		super();
 		this.nome = nome;
@@ -49,23 +33,18 @@ public class Equipamento {
 		this.status = status;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(categoria, localArmazenamento, nome, status);
+	public EquipamentoDTO(@NotNull Integer id, @NotBlank String nome, @NotBlank String categoria,
+			@NotBlank String localArmazenamento, @NotNull StatusEquipamento status) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.categoria = categoria;
+		this.localArmazenamento = localArmazenamento;
+		this.status = status;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Equipamento other = (Equipamento) obj;
-		return Objects.equals(categoria, other.categoria)
-				&& Objects.equals(localArmazenamento, other.localArmazenamento) && Objects.equals(nome, other.nome)
-				&& status == other.status;
+	public EquipamentoDTO() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public Integer getId() {

@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.EquipamentoNaoEncontradoException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.FalhaAoAdicionarEquipamentoException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.FalhaAoAtualizarEquipamentoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAdicionarFuncionarioException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoAtualizarFuncionarioException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoBuscarFuncionariosException;
@@ -81,6 +84,30 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(FalhaAoBuscarFuncionariosException.class)
 	private ResponseEntity<?> FalhaAoBuscarFuncionariosHandler(FalhaAoBuscarFuncionariosException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+
+	}
+
+	@ExceptionHandler(FalhaAoAdicionarEquipamentoException.class)
+	private ResponseEntity<?> FalhaAoAdicionarEquipamentoHandler(FalhaAoAdicionarEquipamentoException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+
+	}
+
+	@ExceptionHandler(EquipamentoNaoEncontradoException.class)
+	private ResponseEntity<?> EquipamentoNaoEncontradoHandler(EquipamentoNaoEncontradoException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+
+	}
+
+	@ExceptionHandler(FalhaAoAtualizarEquipamentoException.class)
+	private ResponseEntity<?> FalhaAoAtualizarEquipamentoHandler(FalhaAoAtualizarEquipamentoException e) {
 		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);

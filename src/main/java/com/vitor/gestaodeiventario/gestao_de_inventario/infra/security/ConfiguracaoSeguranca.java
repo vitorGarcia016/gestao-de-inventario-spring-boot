@@ -27,7 +27,10 @@ public class ConfiguracaoSeguranca {
 				.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(a -> a.requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
 						.requestMatchers(HttpMethod.PUT, "/usuario/permissoes").hasRole("ADMIN")
-						.requestMatchers(HttpMethod.GET, "/usuario").hasRole("ADMIN").anyRequest().authenticated())
+						.requestMatchers(HttpMethod.GET, "/usuario").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.POST, "/equipamento/adicionar").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.PUT, "/equipamento/atualizar").hasRole("ADMIN")
+						.anyRequest().authenticated())
 				.addFilterBefore(filtroSeguranca, UsernamePasswordAuthenticationFilter.class).build();
 	}
 
