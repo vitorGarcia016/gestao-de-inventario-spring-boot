@@ -42,7 +42,7 @@ public class AuthService {
 		try {
 			String senhaCriptografada = new BCryptPasswordEncoder().encode(dto.getSenha());
 
-			Usuario usuario = new Usuario(dto.getNome(), dto.getEmail(), senhaCriptografada, RoleUsuario.ADMIN);
+			Usuario usuario = new Usuario(dto.getNome(), dto.getEmail(), senhaCriptografada, RoleUsuario.FUNCIONARIO);
 
 			repositorie.save(usuario);
 

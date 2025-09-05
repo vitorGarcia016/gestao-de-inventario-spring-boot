@@ -9,6 +9,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.EquipamentoNaoEncontradoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.FalhaAoAdicionarEquipamentoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.FalhaAoAtualizarEquipamentoException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.FalhaAoDeletarEquipamentoException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.FalhaAoPesquisarEquipamentoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAdicionarFuncionarioException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoAtualizarFuncionarioException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoBuscarFuncionariosException;
@@ -112,6 +114,21 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
 
+	}
+
+	@ExceptionHandler(FalhaAoPesquisarEquipamentoException.class)
+	private ResponseEntity<?> FalhaAoPesquisarEquipamentoHandler(FalhaAoPesquisarEquipamentoException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+
+	}
+	@ExceptionHandler(FalhaAoDeletarEquipamentoException.class)
+	private ResponseEntity<?> FalhaAoDeletarEquipamentoHandler(FalhaAoDeletarEquipamentoException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+		
 	}
 
 }
