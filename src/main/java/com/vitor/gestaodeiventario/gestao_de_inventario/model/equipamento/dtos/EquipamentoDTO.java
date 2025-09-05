@@ -31,6 +31,7 @@ public class EquipamentoDTO {
 		this.categoria = categoria;
 		this.localArmazenamento = localArmazenamento;
 		this.status = status;
+
 	}
 
 	public EquipamentoDTO(@NotNull Integer id, @NotBlank String nome, @NotBlank String categoria,

@@ -8,6 +8,8 @@ import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.Usuario;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,14 +42,16 @@ public class Emprestimo {
 	@NotNull
 	private LocalDate dataDevolucao;
 	
-	private Status status;
+	@Enumerated(EnumType.STRING)
+	@NotNull
+	private StatusEmprestimo status;
 	
 	public Emprestimo() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public Emprestimo(@NotNull Usuario usuario, @NotNull Equipamento equipamento, @NotNull LocalDate dataEmprestimo,
-			@NotNull LocalDate dataDevolucao, Status status) {
+			@NotNull LocalDate dataDevolucao, StatusEmprestimo status) {
 		super();
 		this.usuario = usuario;
 		this.equipamento = equipamento;
@@ -116,11 +120,11 @@ public class Emprestimo {
 		this.dataDevolucao = dataDevolucao;
 	}
 
-	public Status getStatus() {
+	public StatusEmprestimo getStatus() {
 		return status;
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(StatusEmprestimo status) {
 		this.status = status;
 	}
 	

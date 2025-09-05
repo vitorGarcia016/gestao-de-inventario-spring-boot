@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EquipamentoIndisponivelException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoObterEmprestimosException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoSolicitarEmprestimoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.EquipamentoNaoEncontradoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.FalhaAoAdicionarEquipamentoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.FalhaAoAtualizarEquipamentoException;
@@ -123,8 +126,32 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
 
 	}
+
 	@ExceptionHandler(FalhaAoDeletarEquipamentoException.class)
 	private ResponseEntity<?> FalhaAoDeletarEquipamentoHandler(FalhaAoDeletarEquipamentoException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+
+	}
+
+	@ExceptionHandler(FalhaAoSolicitarEmprestimoException.class)
+	private ResponseEntity<?> FalhaAoSolicitarEmprestimoHandler(FalhaAoSolicitarEmprestimoException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+
+	}
+
+	@ExceptionHandler(EquipamentoIndisponivelException.class)
+	private ResponseEntity<?> EquipamentoIndisponivelHandler(EquipamentoIndisponivelException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+
+	}
+	@ExceptionHandler(FalhaAoObterEmprestimosException.class)
+	private ResponseEntity<?> FalhaAoObterEmprestimosHandler(FalhaAoObterEmprestimosException e) {
 		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
