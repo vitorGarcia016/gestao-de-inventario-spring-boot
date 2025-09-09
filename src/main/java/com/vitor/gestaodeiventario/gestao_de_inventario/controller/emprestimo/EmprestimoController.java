@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +26,16 @@ public class EmprestimoController {
 	@GetMapping
 	public ResponseEntity<?> getEmprestimo() {
 		return emprestimoService.obterEmprestimosFuncionario();
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<String> putEmprestimo(@PathVariable(name = "id") Integer id) {
+		return emprestimoService.devolverEmprestimo(id);
+	}
+
+	@GetMapping("/atrasados")
+	public ResponseEntity<?> getEmprestimosAtrasados() {
+		return emprestimoService.obterEmprestimosAtrasados();
 	}
 
 }

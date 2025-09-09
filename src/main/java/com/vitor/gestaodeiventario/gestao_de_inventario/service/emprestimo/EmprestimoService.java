@@ -8,14 +8,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EmprestimoNaoEncontradoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EquipamentoIndisponivelException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoObterEmprestimosException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoRegistrarDevolucaoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoSolicitarEmprestimoException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FuncionarioNaoCorrespondenteException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.EquipamentoNaoEncontradoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioInvalidoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.Emprestimo;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.StatusEmprestimo;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.dto.EmprestimoDTO;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.dto.ObterEmprestimosDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.Equipamento;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.StatusEquipamento;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.Usuario;
@@ -80,12 +84,61 @@ public class EmprestimoService {
 			List<Emprestimo> emprestimos = emprestimoRepositorie.findAllByUsuario_idAndStatus(usuario.getId(),
 					StatusEmprestimo.PENDENTE);
 
-			List<EmprestimoDTO> dto = emprestimos.stream().map(
-					e -> new EmprestimoDTO(e.getEquipamento().getNome(), e.getDataEmprestimo(), e.getDataDevolucao()))
-					.toList();
+			List<EmprestimoDTO> dto = emprestimos.stream().map(e -> new EmprestimoDTO(e.getEquipamento().getId(),
+					e.getEquipamento().getNome(), e.getDataEmprestimo(), e.getDataDevolucao())).toList();
 
 			return ResponseEntity.ok().body(dto);
 
+		} catch (Exception e) {
+			throw new FalhaAoObterEmprestimosException();
+		}
+
+	}
+
+	public ResponseEntity<String> devolverEmprestimo(Integer idEmprestimo) {
+
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		Usuario usuario = usuarioRepositorie.findByEmail(email).orElseThrow(() -> new FuncionarioInvalidoException());
+
+		Emprestimo emprestimo = emprestimoRepositorie.findById(idEmprestimo)
+				.orElseThrow(() -> new EmprestimoNaoEncontradoException());
+
+		if (usuario.getId() != emprestimo.getUsuario().getId()) {
+			throw new FuncionarioNaoCorrespondenteException();
+		}
+
+		try {
+			LocalDate devolucao = LocalDate.now();
+
+			if (devolucao.isAfter(emprestimo.getDataDevolucao())) {
+				emprestimo.setStatus(StatusEmprestimo.ATRASADO);
+			} else {
+				emprestimo.setStatus(StatusEmprestimo.DEVOLVIDO);
+			}
+
+			emprestimoRepositorie.save(emprestimo);
+
+			return ResponseEntity.ok().body("Devolucao registrada \nStatus: " + emprestimo.getStatus());
+
+		} catch (Exception e) {
+			throw new FalhaAoRegistrarDevolucaoException();
+		}
+
+	}
+
+	public ResponseEntity<?> obterEmprestimosAtrasados() {
+
+		try {
+
+			List<Emprestimo> emprestimos = emprestimoRepositorie.findAllByStatus(StatusEmprestimo.ATRASADO);
+
+			List<ObterEmprestimosDTO> dto = emprestimos
+					.stream().map(e -> new ObterEmprestimosDTO(e.getId(), e.getUsuario().getNome(),
+							e.getEquipamento().getNome(), e.getDataEmprestimo(), e.getDataDevolucao(), e.getStatus()))
+					.toList();
+
+			return ResponseEntity.ok().body(dto);
 		} catch (Exception e) {
 			throw new FalhaAoObterEmprestimosException();
 		}

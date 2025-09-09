@@ -8,7 +8,7 @@ import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.Usuario;
 
 import jakarta.validation.constraints.NotNull;
 
-public record EmprestimoDTO(@NotNull String equipamento, @NotNull LocalDate dataEmprestimo,
+public record EmprestimoDTO(@NotNull Integer id, @NotNull String equipamento, @NotNull LocalDate dataEmprestimo,
 		@NotNull LocalDate dataDevolucao) {
 
 }

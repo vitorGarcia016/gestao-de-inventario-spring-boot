@@ -31,6 +31,7 @@ public class ConfiguracaoSeguranca {
 						.requestMatchers(HttpMethod.POST, "/equipamento/adicionar").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/equipamento/atualizar").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/equipamento/deletar/**").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.GET, "/emprestimo/atrasados").hasRole("ADMIN")
 						.anyRequest().authenticated())
 				.addFilterBefore(filtroSeguranca, UsernamePasswordAuthenticationFilter.class).build();
 	}

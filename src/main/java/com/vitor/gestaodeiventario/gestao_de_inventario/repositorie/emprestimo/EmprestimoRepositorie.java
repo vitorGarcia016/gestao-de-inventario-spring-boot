@@ -13,4 +13,5 @@ public interface EmprestimoRepositorie extends JpaRepository<Emprestimo, Integer
 
 	
 	List<Emprestimo> findAllByUsuario_idAndStatus(Integer id, StatusEmprestimo s);
+	List<Emprestimo> findAllByStatus(StatusEmprestimo s);
 }
