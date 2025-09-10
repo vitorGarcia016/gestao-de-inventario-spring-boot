@@ -1,6 +1,7 @@
 package com.vitor.gestaodeiventario.gestao_de_inventario.service.usuario;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.persona
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoBuscarFuncionariosException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoDeletarFuncionarioException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoMudarRoleException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoRecuperarSenhaException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioInvalidoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.RoleInvalidaException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.SenhaInvalidaException;
@@ -22,6 +24,7 @@ import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.Busca
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.DeletarDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.UsuarioDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.repositorie.usuario.UsuarioRepositorie;
+import com.vitor.gestaodeiventario.gestao_de_inventario.service.email.EmailService;
 
 @Service
 public class UsuarioService {
@@ -31,6 +34,9 @@ public class UsuarioService {
 
 	@Autowired
 	private PasswordEncoder encoder;
+
+	@Autowired
+	private EmailService emailService;
 
 	public ResponseEntity<String> atualizarNome(UsuarioDTO dto) {
 
@@ -54,6 +60,32 @@ public class UsuarioService {
 			// TODO: handle exception
 			throw new FalhaAoAtualizarFuncionarioException();
 		}
+
+	}
+
+	public ResponseEntity<String> recuperarSenha() {
+
+		String login = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		Usuario usuario = repositorie.findByEmail(login).orElseThrow(() -> new FuncionarioInvalidoException());
+
+		String senhaProvisoria = UUID.randomUUID().toString().substring(0, 6);
+
+		try {
+
+			String senhaCriptografa = new BCryptPasswordEncoder().encode(senhaProvisoria);
+
+			usuario.setSenha(senhaCriptografa);
+
+			repositorie.save(usuario);
+
+		} catch (Exception e) {
+			throw new FalhaAoRecuperarSenhaException();
+		}
+
+		emailService.enviarEmail(login, "Nova senha de acesso", "A sua senha provisória é: " + senhaProvisoria);
+
+		return ResponseEntity.ok().body("Senha enviada para o seu email");
 
 	}
 
@@ -86,8 +118,8 @@ public class UsuarioService {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
 		Usuario usuario = repositorie.findByEmail(email).orElseThrow(() -> new FuncionarioInvalidoException());
-		
-		if(!encoder.matches(dto.senha(), usuario.getSenha())) {
+
+		if (!encoder.matches(dto.senha(), usuario.getSenha())) {
 			throw new SenhaInvalidaException();
 		}
 
