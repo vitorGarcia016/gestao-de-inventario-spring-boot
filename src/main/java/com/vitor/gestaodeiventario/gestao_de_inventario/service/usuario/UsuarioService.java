@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoAtualizarFuncionarioException;
@@ -14,9 +15,11 @@ import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.persona
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoMudarRoleException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioInvalidoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.RoleInvalidaException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.SenhaInvalidaException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.Usuario;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.AtualizarRoleDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.BuscarUsuarioDTO;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.DeletarDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.UsuarioDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.repositorie.usuario.UsuarioRepositorie;
 
@@ -26,22 +29,26 @@ public class UsuarioService {
 	@Autowired
 	private UsuarioRepositorie repositorie;
 
-	public ResponseEntity<String> atualizarUsuario(UsuarioDTO dto) {
+	@Autowired
+	private PasswordEncoder encoder;
+
+	public ResponseEntity<String> atualizarNome(UsuarioDTO dto) {
+
+		String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		Usuario usuario = this.repositorie.findByEmail(email).orElseThrow(() -> new FuncionarioInvalidoException());
+
+		if (!encoder.matches(dto.senha(), usuario.getSenha())) {
+			throw new SenhaInvalidaException();
+		}
 
 		try {
-			String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-			Usuario usuario = this.repositorie.findByEmail(email).orElseThrow(() -> new FuncionarioInvalidoException());
 
 			usuario.setNome(dto.nome());
 
-			String novaSenha = new BCryptPasswordEncoder().encode(dto.senha());
-
-			usuario.setSenha(novaSenha);
-
 			repositorie.save(usuario);
 
-			return ResponseEntity.ok().body("Dados do usuario atualizados");
+			return ResponseEntity.ok().body("Nome do usuario atualizado");
 
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -74,11 +81,15 @@ public class UsuarioService {
 
 	}
 
-	public ResponseEntity<String> deletarUsuario() {
+	public ResponseEntity<String> deletarUsuario(DeletarDTO dto) {
 
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
 		Usuario usuario = repositorie.findByEmail(email).orElseThrow(() -> new FuncionarioInvalidoException());
+		
+		if(!encoder.matches(dto.senha(), usuario.getSenha())) {
+			throw new SenhaInvalidaException();
+		}
 
 		try {
 

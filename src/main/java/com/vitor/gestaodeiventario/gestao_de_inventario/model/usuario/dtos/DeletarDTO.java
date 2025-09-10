@@ -2,6 +2,6 @@ package com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record UsuarioDTO(@NotBlank String senha, @NotBlank String nome) {
+public record DeletarDTO(@NotBlank String senha) {
 
 }
