@@ -42,22 +42,27 @@ public class Usuario implements UserDetails {
 	@NotNull
 	private RoleUsuario roleUsuario;
 
-	public Usuario() {
-		// TODO Auto-generated constructor stub
-	}
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private StatusUsuario statusUsuario;
 
 	public Usuario(@NotBlank String nome, @NotBlank String email, @NotBlank String senha,
-			@NotNull RoleUsuario roleUsuario) {
+			@NotNull RoleUsuario roleUsuario, StatusUsuario statusUsuario) {
 		super();
 		this.nome = nome;
 		this.email = email;
 		this.senha = senha;
 		this.roleUsuario = roleUsuario;
+		this.statusUsuario = statusUsuario;
+	}
+
+	public Usuario() {
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(email, nome, roleUsuario, senha);
+		return Objects.hash(email, nome, roleUsuario, senha, statusUsuario);
 	}
 
 	@Override
@@ -70,7 +75,8 @@ public class Usuario implements UserDetails {
 			return false;
 		Usuario other = (Usuario) obj;
 		return Objects.equals(email, other.email) && Objects.equals(nome, other.nome)
-				&& roleUsuario == other.roleUsuario && Objects.equals(senha, other.senha);
+				&& roleUsuario == other.roleUsuario && Objects.equals(senha, other.senha)
+				&& statusUsuario == other.statusUsuario;
 	}
 
 	public Integer getId() {
@@ -99,6 +105,14 @@ public class Usuario implements UserDetails {
 
 	public String getSenha() {
 		return senha;
+	}
+
+	public StatusUsuario getStatusUsuario() {
+		return statusUsuario;
+	}
+
+	public void setStatusUsuario(StatusUsuario statusUsuario) {
+		this.statusUsuario = statusUsuario;
 	}
 
 	public void setSenha(String senha) {

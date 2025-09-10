@@ -63,9 +63,7 @@ public class UsuarioService {
 
 	}
 
-	public ResponseEntity<String> recuperarSenha() {
-
-		String login = SecurityContextHolder.getContext().getAuthentication().getName();
+	public ResponseEntity<String> recuperarSenha(String login) {
 
 		Usuario usuario = repositorie.findByEmail(login).orElseThrow(() -> new FuncionarioInvalidoException());
 

@@ -1,6 +1,7 @@
 package com.vitor.gestaodeiventario.gestao_de_inventario.service.usuario;
 
-import java.util.Optional;
+import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +14,18 @@ import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.persona
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaRealizarLoginException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioInvalidoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioJaExistenteException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.UuidInvalidoException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.UuidexpiradoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.security.TokenService;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.RoleUsuario;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.StatusUsuario;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.Usuario;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.UsuarioValidacao;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.AuthDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.TokenDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.repositorie.usuario.UsuarioRepositorie;
+import com.vitor.gestaodeiventario.gestao_de_inventario.repositorie.usuario.UsuarioValidacaoRepositorie;
+import com.vitor.gestaodeiventario.gestao_de_inventario.service.email.EmailService;
 
 @Service
 public class AuthService {
@@ -30,7 +37,13 @@ public class AuthService {
 	private AuthenticationManager authenticationManager;
 
 	@Autowired
+	private UsuarioValidacaoRepositorie usuarioValidacaoRepositorie;
+
+	@Autowired
 	private TokenService service;
+
+	@Autowired
+	private EmailService emailService;
 
 	public ResponseEntity<String> registro(AuthDTO dto) {
 
@@ -42,15 +55,51 @@ public class AuthService {
 		try {
 			String senhaCriptografada = new BCryptPasswordEncoder().encode(dto.getSenha());
 
-			Usuario usuario = new Usuario(dto.getNome(), dto.getEmail(), senhaCriptografada, RoleUsuario.FUNCIONARIO);
+			Usuario usuario = new Usuario(dto.getNome(), dto.getEmail(), senhaCriptografada, RoleUsuario.FUNCIONARIO,
+					StatusUsuario.INATIVO);
 
 			repositorie.save(usuario);
 
-			return ResponseEntity.ok().body("Funcionario adicionado");
+			String uuid = UUID.randomUUID().toString();
+
+			Instant tempoValidacao = Instant.now().plusMillis(600000);
+
+			UsuarioValidacao usuarioValidacao = new UsuarioValidacao(uuid, tempoValidacao, usuario);
+
+			usuarioValidacaoRepositorie.save(usuarioValidacao);
+
+			emailService.enviarEmail(usuario.getEmail(), "Realização de cadastro de login",
+					"O seu codigo de validação é: " + uuid);
+
+			return ResponseEntity.ok().body("Agora verifique o seu email");
 
 		} catch (Exception e) {
 			throw new FalhaAdicionarFuncionarioException();
 		}
+	}
+
+	public ResponseEntity<String> validarUuid(String uuid) {
+
+		UsuarioValidacao usuarioValidacao = usuarioValidacaoRepositorie.findByUuid(uuid)
+				.orElseThrow(() -> new UuidInvalidoException());
+
+		Usuario usuario = repositorie.findById(usuarioValidacao.getUsuario().getId())
+				.orElseThrow(() -> new FuncionarioInvalidoException());
+
+		Instant horaAtual = Instant.now();
+
+		if (horaAtual.isAfter(usuarioValidacao.getInstant())) {
+			usuarioValidacaoRepositorie.delete(usuarioValidacao);
+			repositorie.delete(usuario);
+			throw new UuidexpiradoException();
+		}
+
+		usuario.setStatusUsuario(StatusUsuario.ATIVO);
+
+		repositorie.save(usuario);
+
+		return ResponseEntity.ok().body("Validado com sucesso");
+
 	}
 
 	public ResponseEntity<?> login(AuthDTO dto) {
@@ -60,9 +109,14 @@ public class AuthService {
 
 			var auth = authenticationManager.authenticate(usuarioToken);
 
-			Optional<Usuario> usuario = repositorie.findByEmail(dto.getEmail());
+			Usuario usuario = repositorie.findByEmail(dto.getEmail())
+					.orElseThrow(() -> new FuncionarioInvalidoException());
 
-			String token = service.gerarToken(usuario.orElseThrow(() -> new FuncionarioInvalidoException()));
+			if (usuario.getStatusUsuario() != StatusUsuario.ATIVO) {
+				throw new FuncionarioInvalidoException();
+			}
+
+			String token = service.gerarToken(usuario);
 
 			return ResponseEntity.ok(new TokenDTO(token));
 

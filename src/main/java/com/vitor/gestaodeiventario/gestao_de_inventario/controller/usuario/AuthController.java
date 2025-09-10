@@ -3,6 +3,7 @@ package com.vitor.gestaodeiventario.gestao_de_inventario.controller.usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,11 @@ public class AuthController {
 	@PostMapping("/registro")
 	public ResponseEntity<String> registro(@Valid @RequestBody AuthDTO dto) {
 		return authService.registro(dto);
+	}
+	
+	@PutMapping("/validar")
+	public ResponseEntity<String> validarUsuario(@RequestBody String uuid){
+		return authService.validarUuid(uuid);
 	}
 
 	@PostMapping("/login")

@@ -26,13 +26,15 @@ public class ConfiguracaoSeguranca {
 		return httpSecurity.csrf(c -> c.disable())
 				.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(a -> a.requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+						.requestMatchers(HttpMethod.PUT, "/auth/**").permitAll()
 						.requestMatchers(HttpMethod.PUT, "/usuario/permissoes").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.GET, "/usuario/recuperar-senha").permitAll()
 						.requestMatchers(HttpMethod.GET, "/usuario").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.POST, "/equipamento/adicionar").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/equipamento/atualizar").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/equipamento/deletar/**").hasRole("ADMIN")
-						.requestMatchers(HttpMethod.GET, "/emprestimo/atrasados").hasRole("ADMIN")
-						.anyRequest().authenticated())
+						.requestMatchers(HttpMethod.GET, "/emprestimo/atrasados").hasRole("ADMIN").anyRequest()
+						.authenticated())
 				.addFilterBefore(filtroSeguranca, UsernamePasswordAuthenticationFilter.class).build();
 	}
 

@@ -33,9 +33,9 @@ public class UsuarioController {
 	}
 
 	@GetMapping("/recuperar-senha")
-	public ResponseEntity<String> getSenha() {
+	public ResponseEntity<String> getSenha(@RequestBody String email) {
 
-		return service.recuperarSenha();
+		return service.recuperarSenha(email);
 	}
 
 	@PutMapping("/permissoes")
