@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record ObterEmprestimosDTO(@NotNull Integer id, @NotBlank String nome, @NotNull String equipamento,
-		@NotNull LocalDate dataEmprestimo, @NotNull LocalDate dataDevolucao, StatusEmprestimo status) {
+		@NotNull LocalDate dataEmprestimo, @NotNull LocalDate dataPrevista, @NotNull LocalDate dataDevolucao,
+		StatusEmprestimo status) {
 
 }

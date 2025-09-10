@@ -61,7 +61,7 @@ public class EmprestimoService {
 
 			equipamento.setStatus(StatusEquipamento.INDISPONIVEL);
 
-			Emprestimo emprestimo = new Emprestimo(usuario, equipamento, dataAtual, dataDevolucao,
+			Emprestimo emprestimo = new Emprestimo(usuario, equipamento, dataAtual, dataDevolucao, null,
 					StatusEmprestimo.PENDENTE);
 
 			emprestimoRepositorie.save(emprestimo);
@@ -85,7 +85,7 @@ public class EmprestimoService {
 					StatusEmprestimo.PENDENTE);
 
 			List<EmprestimoDTO> dto = emprestimos.stream().map(e -> new EmprestimoDTO(e.getEquipamento().getId(),
-					e.getEquipamento().getNome(), e.getDataEmprestimo(), e.getDataDevolucao())).toList();
+					e.getEquipamento().getNome(), e.getDataEmprestimo(), e.getDataPrevista())).toList();
 
 			return ResponseEntity.ok().body(dto);
 
@@ -109,9 +109,9 @@ public class EmprestimoService {
 		}
 
 		try {
-			LocalDate devolucao = LocalDate.now();
+			emprestimo.setDataDevolvolucao(LocalDate.now());
 
-			if (devolucao.isAfter(emprestimo.getDataDevolucao())) {
+			if (emprestimo.getDataDevolvolucao().isAfter(emprestimo.getDataPrevista())) {
 				emprestimo.setStatus(StatusEmprestimo.ATRASADO);
 			} else {
 				emprestimo.setStatus(StatusEmprestimo.DEVOLVIDO);
@@ -133,9 +133,9 @@ public class EmprestimoService {
 
 			List<Emprestimo> emprestimos = emprestimoRepositorie.findAllByStatus(StatusEmprestimo.ATRASADO);
 
-			List<ObterEmprestimosDTO> dto = emprestimos
-					.stream().map(e -> new ObterEmprestimosDTO(e.getId(), e.getUsuario().getNome(),
-							e.getEquipamento().getNome(), e.getDataEmprestimo(), e.getDataDevolucao(), e.getStatus()))
+			List<ObterEmprestimosDTO> dto = emprestimos.stream()
+					.map(e -> new ObterEmprestimosDTO(e.getId(), e.getUsuario().getNome(), e.getEquipamento().getNome(),
+							e.getDataEmprestimo(), e.getDataPrevista(), e.getDataDevolvolucao(), e.getStatus()))
 					.toList();
 
 			return ResponseEntity.ok().body(dto);

@@ -23,46 +23,49 @@ public class Emprestimo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
+
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	@NotNull
 	private Usuario usuario;
-	
+
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	@NotNull
 	private Equipamento equipamento;
-	
+
 	@Column(nullable = false)
 	@NotNull
 	private LocalDate dataEmprestimo;
-	
+
 	@Column(nullable = false)
 	@NotNull
-	private LocalDate dataDevolucao;
-	
+	private LocalDate dataPrevista;
+
+	private LocalDate dataDevolvolucao;
+
 	@Enumerated(EnumType.STRING)
 	@NotNull
 	private StatusEmprestimo status;
-	
+
 	public Emprestimo() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public Emprestimo(@NotNull Usuario usuario, @NotNull Equipamento equipamento, @NotNull LocalDate dataEmprestimo,
-			@NotNull LocalDate dataDevolucao, StatusEmprestimo status) {
+			@NotNull LocalDate dataDevolucao, LocalDate dataDevolvolucao, StatusEmprestimo status) {
 		super();
 		this.usuario = usuario;
 		this.equipamento = equipamento;
 		this.dataEmprestimo = dataEmprestimo;
-		this.dataDevolucao = dataDevolucao;
+		this.dataPrevista = dataDevolucao;
+		this.dataDevolvolucao = dataDevolucao;
 		this.status = status;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(dataDevolucao, dataEmprestimo, equipamento, status, usuario);
+		return Objects.hash(dataPrevista, dataEmprestimo, equipamento, status, usuario);
 	}
 
 	@Override
@@ -74,8 +77,7 @@ public class Emprestimo {
 		if (getClass() != obj.getClass())
 			return false;
 		Emprestimo other = (Emprestimo) obj;
-		return Objects.equals(dataDevolucao, other.dataDevolucao)
-				&& Objects.equals(dataEmprestimo, other.dataEmprestimo)
+		return Objects.equals(dataPrevista, other.dataPrevista) && Objects.equals(dataEmprestimo, other.dataEmprestimo)
 				&& Objects.equals(equipamento, other.equipamento) && status == other.status
 				&& Objects.equals(usuario, other.usuario);
 	}
@@ -112,12 +114,20 @@ public class Emprestimo {
 		this.dataEmprestimo = dataEmprestimo;
 	}
 
-	public LocalDate getDataDevolucao() {
-		return dataDevolucao;
+	public LocalDate getDataPrevista() {
+		return dataPrevista;
 	}
 
-	public void setDataDevolucao(LocalDate dataDevolucao) {
-		this.dataDevolucao = dataDevolucao;
+	public void setDataPrevista(LocalDate dataPrevista) {
+		this.dataPrevista = dataPrevista;
+	}
+
+	public LocalDate getDataDevolvolucao() {
+		return dataDevolvolucao;
+	}
+
+	public void setDataDevolvolucao(LocalDate dataDevolvolucao) {
+		this.dataDevolvolucao = dataDevolvolucao;
 	}
 
 	public StatusEmprestimo getStatus() {
@@ -127,7 +137,9 @@ public class Emprestimo {
 	public void setStatus(StatusEmprestimo status) {
 		this.status = status;
 	}
+
 	
 	
 	
+
 }
