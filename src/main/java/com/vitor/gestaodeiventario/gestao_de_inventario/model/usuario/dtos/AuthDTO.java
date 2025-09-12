@@ -1,5 +1,6 @@
 package com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class AuthDTO {
@@ -8,6 +9,7 @@ public class AuthDTO {
 	private String nome;
 
 	@NotBlank
+	@Email(message = "Digite um email valido")
 	private String email;
 
 	@NotBlank
@@ -17,20 +19,19 @@ public class AuthDTO {
 		// TODO Auto-generated constructor stub
 	}
 
-	public AuthDTO(@NotBlank String nome, @NotBlank String email, @NotBlank String senha) {
+	public AuthDTO(@NotBlank String nome, @NotBlank @Email(message = "Digite um email valido") String email,
+			@NotBlank String senha) {
 		super();
 		this.nome = nome;
 		this.email = email;
 		this.senha = senha;
 	}
 
-	public AuthDTO(@NotBlank String email, @NotBlank String senha) {
+	public AuthDTO(@NotBlank @Email(message = "Digite um email valido") String email, @NotBlank String senha) {
 		super();
 		this.email = email;
 		this.senha = senha;
 	}
-
-	
 
 	public String getNome() {
 		return nome;

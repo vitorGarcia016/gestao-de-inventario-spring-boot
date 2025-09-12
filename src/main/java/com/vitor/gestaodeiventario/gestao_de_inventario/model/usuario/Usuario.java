@@ -26,28 +26,23 @@ public class Usuario implements UserDetails {
 	private Integer id;
 
 	@Column(nullable = false)
-	@NotBlank
 	private String nome;
 
 	@Column(unique = true, nullable = false)
-	@NotBlank
 	private String email;
 
 	@Column(nullable = false)
-	@NotBlank
 	private String senha;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	@NotNull
 	private RoleUsuario roleUsuario;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private StatusUsuario statusUsuario;
 
-	public Usuario(@NotBlank String nome, @NotBlank String email, @NotBlank String senha,
-			@NotNull RoleUsuario roleUsuario, StatusUsuario statusUsuario) {
+	public Usuario(String nome, String email, String senha, RoleUsuario roleUsuario, StatusUsuario statusUsuario) {
 		super();
 		this.nome = nome;
 		this.email = email;

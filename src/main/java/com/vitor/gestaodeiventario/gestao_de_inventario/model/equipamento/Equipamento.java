@@ -9,8 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Equipamento {
@@ -20,18 +18,14 @@ public class Equipamento {
 	private Integer id;
 
 	@Column(nullable = false)
-	@NotBlank
 	private String nome;
 
-	@NotBlank
 	@Column(nullable = false)
 	private String categoria;
 
-	@NotBlank
 	@Column(nullable = false)
 	private String localArmazenamento;
 
-	@NotNull
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private StatusEquipamento status;
@@ -40,8 +34,7 @@ public class Equipamento {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Equipamento(@NotBlank String nome, @NotBlank String categoria, @NotBlank String localArmazenamento,
-			@NotNull StatusEquipamento status) {
+	public Equipamento(String nome, String categoria, String localArmazenamento, StatusEquipamento status) {
 		super();
 		this.nome = nome;
 		this.categoria = categoria;

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class EquipamentoDTO {
 
+	@NotNull
 	private Integer id;
 
 	@NotBlank

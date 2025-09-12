@@ -15,7 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Emprestimo {
@@ -26,34 +25,29 @@ public class Emprestimo {
 
 	@ManyToOne
 	@JoinColumn(nullable = false)
-	@NotNull
 	private Usuario usuario;
 
 	@ManyToOne
 	@JoinColumn(nullable = false)
-	@NotNull
 	private Equipamento equipamento;
 
 	@Column(nullable = false)
-	@NotNull
 	private LocalDate dataEmprestimo;
 
 	@Column(nullable = false)
-	@NotNull
 	private LocalDate dataPrevista;
 
 	private LocalDate dataDevolvolucao;
 
 	@Enumerated(EnumType.STRING)
-	@NotNull
 	private StatusEmprestimo status;
 
 	public Emprestimo() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Emprestimo(@NotNull Usuario usuario, @NotNull Equipamento equipamento, @NotNull LocalDate dataEmprestimo,
-			@NotNull LocalDate dataDevolucao, LocalDate dataDevolvolucao, StatusEmprestimo status) {
+	public Emprestimo(Usuario usuario, Equipamento equipamento, LocalDate dataEmprestimo, LocalDate dataDevolucao,
+			LocalDate dataDevolvolucao, StatusEmprestimo status) {
 		super();
 		this.usuario = usuario;
 		this.equipamento = equipamento;
@@ -137,9 +131,5 @@ public class Emprestimo {
 	public void setStatus(StatusEmprestimo status) {
 		this.status = status;
 	}
-
-	
-	
-	
 
 }

@@ -24,9 +24,9 @@ public class AuthController {
 	public ResponseEntity<String> registro(@Valid @RequestBody AuthDTO dto) {
 		return authService.registro(dto);
 	}
-	
+
 	@PutMapping("/validar")
-	public ResponseEntity<String> validarUsuario(@RequestBody String uuid){
+	public ResponseEntity<String> validarUsuario(@RequestBody String uuid) {
 		return authService.validarUuid(uuid);
 	}
 

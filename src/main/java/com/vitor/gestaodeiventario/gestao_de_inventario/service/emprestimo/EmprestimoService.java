@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EmprestimoNaoEncontradoException;
@@ -15,17 +14,16 @@ import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.persona
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoSolicitarEmprestimoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FuncionarioNaoCorrespondenteException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.EquipamentoNaoEncontradoException;
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioInvalidoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.Emprestimo;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.StatusEmprestimo;
-import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.dto.EmprestimoDTO;
-import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.dto.ObterEmprestimosDTO;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.dtos.EmprestimoDTO;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.dtos.ObterEmprestimosDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.Equipamento;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.StatusEquipamento;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.Usuario;
 import com.vitor.gestaodeiventario.gestao_de_inventario.repositorie.emprestimo.EmprestimoRepositorie;
 import com.vitor.gestaodeiventario.gestao_de_inventario.repositorie.equipamento.EquipamentoRepositorie;
-import com.vitor.gestaodeiventario.gestao_de_inventario.repositorie.usuario.UsuarioRepositorie;
+import com.vitor.gestaodeiventario.gestao_de_inventario.service.util.BD;
 
 @Service
 public class EmprestimoService {
@@ -36,15 +34,13 @@ public class EmprestimoService {
 	@Autowired
 	private EquipamentoRepositorie equipamentoRepositorie;
 
+	
 	@Autowired
-	private UsuarioRepositorie usuarioRepositorie;
+	private BD util;
 
 	public ResponseEntity<String> solicitarEmprestimo(Integer idEquipamento) {
 
-		String emailUsuario = SecurityContextHolder.getContext().getAuthentication().getName();
-
-		Usuario usuario = usuarioRepositorie.findByEmail(emailUsuario)
-				.orElseThrow(() -> new FuncionarioInvalidoException());
+		Usuario usuario = util.obterUsuarioDaVezBd();
 
 		Equipamento equipamento = equipamentoRepositorie.findById(idEquipamento)
 				.orElseThrow(() -> new EquipamentoNaoEncontradoException());
@@ -76,9 +72,7 @@ public class EmprestimoService {
 
 	public ResponseEntity<?> obterEmprestimosFuncionario() {
 
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-		Usuario usuario = usuarioRepositorie.findByEmail(email).orElseThrow(() -> new FuncionarioInvalidoException());
+		Usuario usuario = util.obterUsuarioDaVezBd();
 
 		try {
 			List<Emprestimo> emprestimos = emprestimoRepositorie.findAllByUsuario_idAndStatus(usuario.getId(),
@@ -97,9 +91,7 @@ public class EmprestimoService {
 
 	public ResponseEntity<String> devolverEmprestimo(Integer idEmprestimo) {
 
-		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-		Usuario usuario = usuarioRepositorie.findByEmail(email).orElseThrow(() -> new FuncionarioInvalidoException());
+		Usuario usuario = util.obterUsuarioDaVezBd();
 
 		Emprestimo emprestimo = emprestimoRepositorie.findById(idEmprestimo)
 				.orElseThrow(() -> new EmprestimoNaoEncontradoException());

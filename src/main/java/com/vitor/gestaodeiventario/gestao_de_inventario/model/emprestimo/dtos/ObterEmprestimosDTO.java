@@ -1,4 +1,4 @@
-package com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.dto;
+package com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.dtos;
 
 import java.time.LocalDate;
 

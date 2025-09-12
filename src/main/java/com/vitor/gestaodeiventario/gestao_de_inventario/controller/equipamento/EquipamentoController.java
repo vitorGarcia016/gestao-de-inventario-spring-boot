@@ -41,7 +41,7 @@ public class EquipamentoController {
 	}
 
 	@GetMapping
-	public ResponseEntity<?> getEquipamento(@RequestBody StatusEquipamento s) {
+	public ResponseEntity<?> getEquipamento(@RequestBody @Valid StatusEquipamento s) {
 		return equipamentoService.obterEquipamentos(s);
 	}
 }
