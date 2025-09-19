@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.StatusEquipamento;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.dtos.EquipamentoDTO;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.dtos.StatusEquipamentoDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.service.equipamento.EquipamentoService;
 
 import jakarta.validation.Valid;
@@ -41,7 +41,7 @@ public class EquipamentoController {
 	}
 
 	@GetMapping
-	public ResponseEntity<?> getEquipamento(@RequestBody @Valid StatusEquipamento s) {
-		return equipamentoService.obterEquipamentos(s);
+	public ResponseEntity<?> getEquipamento(@RequestBody @Valid StatusEquipamentoDTO s) {
+		return equipamentoService.obterEquipamentos(s.status());
 	}
 }

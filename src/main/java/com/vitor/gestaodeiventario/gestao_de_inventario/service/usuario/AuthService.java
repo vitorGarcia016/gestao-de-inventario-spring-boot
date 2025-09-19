@@ -90,13 +90,20 @@ public class AuthService {
 
 		if (horaAtual.isAfter(usuarioValidacao.getInstant())) {
 			usuarioValidacaoRepositorie.delete(usuarioValidacao);
-			repositorie.delete(usuario);
+
+			if (usuario.getStatusUsuario() == StatusUsuario.INATIVO) {
+				repositorie.delete(usuario);
+
+			}
+
 			throw new UuidexpiradoException();
 		}
 
 		usuario.setStatusUsuario(StatusUsuario.ATIVO);
 
 		repositorie.save(usuario);
+
+		usuarioValidacaoRepositorie.delete(usuarioValidacao);
 
 		return ResponseEntity.ok().body("Validado com sucesso");
 
@@ -107,7 +114,7 @@ public class AuthService {
 		try {
 			var usuarioToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha());
 
-			var auth = authenticationManager.authenticate(usuarioToken);
+			authenticationManager.authenticate(usuarioToken);
 
 			Usuario usuario = repositorie.findByEmail(dto.getEmail())
 					.orElseThrow(() -> new FuncionarioInvalidoException());

@@ -17,6 +17,7 @@ import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.persona
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioInvalidoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.RoleInvalidaException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.SenhaInvalidaException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.StatusUsuario;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.Usuario;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.AtualizarRoleDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.usuario.dtos.AtualizarSenhaDTO;
@@ -65,9 +66,9 @@ public class UsuarioService {
 
 	}
 
-	public ResponseEntity<String> recuperarSenha(String login) {
+	public ResponseEntity<String> recuperarSenha() {
 
-		Usuario usuario = repositorie.findByEmail(login).orElseThrow(() -> new FuncionarioInvalidoException());
+		Usuario usuario = util.obterUsuarioDaVezBd();
 
 		String senhaProvisoria = UUID.randomUUID().toString().substring(0, 6);
 
@@ -83,7 +84,8 @@ public class UsuarioService {
 			throw new FalhaAoRecuperarSenhaException();
 		}
 
-		emailService.enviarEmail(login, "Nova senha de acesso", "A sua senha provisória é: " + senhaProvisoria);
+		emailService.enviarEmail(usuario.getEmail(), "Nova senha de acesso",
+				"A sua senha provisória é: " + senhaProvisoria);
 
 		return ResponseEntity.ok().body("Senha enviada para o seu email");
 
@@ -166,7 +168,8 @@ public class UsuarioService {
 	public List<BuscarUsuarioDTO> buscarUsuarios() {
 
 		try {
-			List<Usuario> usuarios = repositorie.findAll();
+
+			List<Usuario> usuarios = repositorie.findAllByStatusUsuario(StatusUsuario.ATIVO);
 
 			List<BuscarUsuarioDTO> usuariosDTO = usuarios.stream()
 					.map(e -> new BuscarUsuarioDTO(e.getNome(), e.getEmail(), e.getRoleUsuario())).toList();

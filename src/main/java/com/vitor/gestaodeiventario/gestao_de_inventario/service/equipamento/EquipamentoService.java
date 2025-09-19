@@ -14,6 +14,7 @@ import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.persona
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.Equipamento;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.StatusEquipamento;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.dtos.EquipamentoDTO;
+import com.vitor.gestaodeiventario.gestao_de_inventario.model.equipamento.dtos.StatusEquipamentoDTO;
 import com.vitor.gestaodeiventario.gestao_de_inventario.repositorie.equipamento.EquipamentoRepositorie;
 
 @Service
@@ -86,6 +87,10 @@ public class EquipamentoService {
 
 			List<EquipamentoDTO> dto = equipamentos.stream().map(e -> new EquipamentoDTO(e.getId(), e.getNome(),
 					e.getCategoria(), e.getLocalArmazenamento(), e.getStatus())).toList();
+			
+			if(dto.isEmpty()) {
+				return ResponseEntity.ok().body("Nenhum equipamento encontrado");
+			}
 
 			return ResponseEntity.ok().body(dto);
 

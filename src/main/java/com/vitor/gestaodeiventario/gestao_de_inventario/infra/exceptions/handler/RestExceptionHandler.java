@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.email.FalhaAoEnviarEmailException;
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EmprestimoJaDevolvidoExeception;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EmprestimoNaoEncontradoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EquipamentoIndisponivelException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoObterEmprestimosException;
@@ -225,6 +226,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(UuidexpiradoException.class)
 	private ResponseEntity<?> UuidexpiradoHandler(UuidexpiradoException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+
+	}
+
+	@ExceptionHandler(EmprestimoJaDevolvidoExeception.class)
+	private ResponseEntity<?> EmprestimoJaDevolvidoHandler(EmprestimoJaDevolvidoExeception e) {
 		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);

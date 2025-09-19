@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EmprestimoJaDevolvidoExeception;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EmprestimoNaoEncontradoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EquipamentoIndisponivelException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoObterEmprestimosException;
@@ -95,6 +96,10 @@ public class EmprestimoService {
 
 		Emprestimo emprestimo = emprestimoRepositorie.findById(idEmprestimo)
 				.orElseThrow(() -> new EmprestimoNaoEncontradoException());
+		
+		if(emprestimo.getStatus() != StatusEmprestimo.PENDENTE) {
+			throw new EmprestimoJaDevolvidoExeception();
+		}
 
 		if (usuario.getId() != emprestimo.getUsuario().getId()) {
 			throw new FuncionarioNaoCorrespondenteException();
