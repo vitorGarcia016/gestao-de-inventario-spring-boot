@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EmprestimoJaDevolvidoExeception;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EmprestimoNaoEncontradoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.EquipamentoIndisponivelException;
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoObterEmprestimosException;
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoRegistrarDevolucaoException;
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FalhaAoSolicitarEmprestimoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.emprestimo.FuncionarioNaoCorrespondenteException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.equipamento.EquipamentoNaoEncontradoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.model.emprestimo.Emprestimo;
@@ -35,7 +32,6 @@ public class EmprestimoService {
 	@Autowired
 	private EquipamentoRepositorie equipamentoRepositorie;
 
-	
 	@Autowired
 	private BD util;
 
@@ -50,24 +46,18 @@ public class EmprestimoService {
 			throw new EquipamentoIndisponivelException();
 		}
 
-		try {
+		LocalDate dataAtual = LocalDate.now();
 
-			LocalDate dataAtual = LocalDate.now();
+		LocalDate dataDevolucao = dataAtual.plusDays(10);
 
-			LocalDate dataDevolucao = dataAtual.plusDays(10);
+		equipamento.setStatus(StatusEquipamento.INDISPONIVEL);
 
-			equipamento.setStatus(StatusEquipamento.INDISPONIVEL);
+		Emprestimo emprestimo = new Emprestimo(usuario, equipamento, dataAtual, dataDevolucao, null,
+				StatusEmprestimo.PENDENTE);
 
-			Emprestimo emprestimo = new Emprestimo(usuario, equipamento, dataAtual, dataDevolucao, null,
-					StatusEmprestimo.PENDENTE);
+		emprestimoRepositorie.save(emprestimo);
 
-			emprestimoRepositorie.save(emprestimo);
-
-			return ResponseEntity.ok().body("Solicitacao enviada \n Data de devolucao: " + dataDevolucao);
-
-		} catch (Exception e) {
-			throw new FalhaAoSolicitarEmprestimoException();
-		}
+		return ResponseEntity.ok().body("Solicitacao enviada \n Data de devolucao: " + dataDevolucao);
 
 	}
 
@@ -75,18 +65,13 @@ public class EmprestimoService {
 
 		Usuario usuario = util.obterUsuarioDaVezBd();
 
-		try {
-			List<Emprestimo> emprestimos = emprestimoRepositorie.findAllByUsuario_idAndStatus(usuario.getId(),
-					StatusEmprestimo.PENDENTE);
+		List<Emprestimo> emprestimos = emprestimoRepositorie.findAllByUsuario_idAndStatus(usuario.getId(),
+				StatusEmprestimo.PENDENTE);
 
-			List<EmprestimoDTO> dto = emprestimos.stream().map(e -> new EmprestimoDTO(e.getEquipamento().getId(),
-					e.getEquipamento().getNome(), e.getDataEmprestimo(), e.getDataPrevista())).toList();
+		List<EmprestimoDTO> dto = emprestimos.stream().map(e -> new EmprestimoDTO(e.getEquipamento().getId(),
+				e.getEquipamento().getNome(), e.getDataEmprestimo(), e.getDataPrevista())).toList();
 
-			return ResponseEntity.ok().body(dto);
-
-		} catch (Exception e) {
-			throw new FalhaAoObterEmprestimosException();
-		}
+		return ResponseEntity.ok().body(dto);
 
 	}
 
@@ -96,8 +81,8 @@ public class EmprestimoService {
 
 		Emprestimo emprestimo = emprestimoRepositorie.findById(idEmprestimo)
 				.orElseThrow(() -> new EmprestimoNaoEncontradoException());
-		
-		if(emprestimo.getStatus() != StatusEmprestimo.PENDENTE) {
+
+		if (emprestimo.getStatus() != StatusEmprestimo.PENDENTE) {
 			throw new EmprestimoJaDevolvidoExeception();
 		}
 
@@ -105,40 +90,34 @@ public class EmprestimoService {
 			throw new FuncionarioNaoCorrespondenteException();
 		}
 
-		try {
-			emprestimo.setDataDevolvolucao(LocalDate.now());
+		emprestimo.setDataDevolvolucao(LocalDate.now());
 
-			if (emprestimo.getDataDevolvolucao().isAfter(emprestimo.getDataPrevista())) {
-				emprestimo.setStatus(StatusEmprestimo.ATRASADO);
-			} else {
-				emprestimo.setStatus(StatusEmprestimo.DEVOLVIDO);
-			}
-
-			emprestimoRepositorie.save(emprestimo);
-
-			return ResponseEntity.ok().body("Devolucao registrada \nStatus: " + emprestimo.getStatus());
-
-		} catch (Exception e) {
-			throw new FalhaAoRegistrarDevolucaoException();
+		if (emprestimo.getDataDevolvolucao().isAfter(emprestimo.getDataPrevista())) {
+			emprestimo.setStatus(StatusEmprestimo.ATRASADO);
+		} else {
+			emprestimo.setStatus(StatusEmprestimo.DEVOLVIDO);
 		}
+
+		emprestimoRepositorie.save(emprestimo);
+
+		return ResponseEntity.ok().body("Devolucao registrada \nStatus: " + emprestimo.getStatus());
 
 	}
 
 	public ResponseEntity<?> obterEmprestimosAtrasados() {
 
-		try {
+		List<Emprestimo> emprestimos = emprestimoRepositorie.findAllByStatus(StatusEmprestimo.ATRASADO);
 
-			List<Emprestimo> emprestimos = emprestimoRepositorie.findAllByStatus(StatusEmprestimo.ATRASADO);
-
-			List<ObterEmprestimosDTO> dto = emprestimos.stream()
-					.map(e -> new ObterEmprestimosDTO(e.getId(), e.getUsuario().getNome(), e.getEquipamento().getNome(),
-							e.getDataEmprestimo(), e.getDataPrevista(), e.getDataDevolvolucao(), e.getStatus()))
-					.toList();
-
-			return ResponseEntity.ok().body(dto);
-		} catch (Exception e) {
-			throw new FalhaAoObterEmprestimosException();
+		List<ObterEmprestimosDTO> dto = emprestimos.stream()
+				.map(e -> new ObterEmprestimosDTO(e.getId(), e.getUsuario().getNome(), e.getEquipamento().getNome(),
+						e.getDataEmprestimo(), e.getDataPrevista(), e.getDataDevolvolucao(), e.getStatus()))
+				.toList();
+		
+		if(dto.isEmpty()) {
+			return ResponseEntity.ok().body("Nenhum emprestimo encontrado");
 		}
+
+		return ResponseEntity.ok().body(dto);
 
 	}
 

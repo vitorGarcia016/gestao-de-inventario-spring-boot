@@ -10,8 +10,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAdicionarFuncionarioException;
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaRealizarLoginException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioInvalidoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioJaExistenteException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.UuidInvalidoException;
@@ -52,30 +50,26 @@ public class AuthService {
 
 		}
 
-		try {
-			String senhaCriptografada = new BCryptPasswordEncoder().encode(dto.getSenha());
+		String senhaCriptografada = new BCryptPasswordEncoder().encode(dto.getSenha());
 
-			Usuario usuario = new Usuario(dto.getNome(), dto.getEmail(), senhaCriptografada, RoleUsuario.FUNCIONARIO,
-					StatusUsuario.INATIVO);
+		Usuario usuario = new Usuario(dto.getNome(), dto.getEmail(), senhaCriptografada, RoleUsuario.FUNCIONARIO,
+				StatusUsuario.INATIVO);
 
-			repositorie.save(usuario);
+		repositorie.save(usuario);
 
-			String uuid = UUID.randomUUID().toString();
+		String uuid = UUID.randomUUID().toString();
 
-			Instant tempoValidacao = Instant.now().plusMillis(600000);
+		Instant tempoValidacao = Instant.now().plusMillis(600000);
 
-			UsuarioValidacao usuarioValidacao = new UsuarioValidacao(uuid, tempoValidacao, usuario);
+		UsuarioValidacao usuarioValidacao = new UsuarioValidacao(uuid, tempoValidacao, usuario);
 
-			usuarioValidacaoRepositorie.save(usuarioValidacao);
+		usuarioValidacaoRepositorie.save(usuarioValidacao);
 
-			emailService.enviarEmail(usuario.getEmail(), "Realização de cadastro de login",
-					"O seu codigo de validação é: " + uuid);
+		emailService.enviarEmail(usuario.getEmail(), "Realização de cadastro de login",
+				"O seu codigo de validação é: " + uuid);
 
-			return ResponseEntity.ok().body("Agora verifique o seu email");
+		return ResponseEntity.ok().body("Agora verifique o seu email");
 
-		} catch (Exception e) {
-			throw new FalhaAdicionarFuncionarioException();
-		}
 	}
 
 	public ResponseEntity<String> validarUuid(String uuid) {
@@ -111,25 +105,19 @@ public class AuthService {
 
 	public ResponseEntity<?> login(AuthDTO dto) {
 
-		try {
-			var usuarioToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha());
+		var usuarioToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha());
 
-			authenticationManager.authenticate(usuarioToken);
+		authenticationManager.authenticate(usuarioToken);
 
-			Usuario usuario = repositorie.findByEmail(dto.getEmail())
-					.orElseThrow(() -> new FuncionarioInvalidoException());
+		Usuario usuario = repositorie.findByEmail(dto.getEmail()).orElseThrow(() -> new FuncionarioInvalidoException());
 
-			if (usuario.getStatusUsuario() != StatusUsuario.ATIVO) {
-				throw new FuncionarioInvalidoException();
-			}
-
-			String token = service.gerarToken(usuario);
-
-			return ResponseEntity.ok(new TokenDTO(token));
-
-		} catch (Exception e) {
-			throw new FalhaRealizarLoginException();
+		if (usuario.getStatusUsuario() != StatusUsuario.ATIVO) {
+			throw new FuncionarioInvalidoException();
 		}
+
+		String token = service.gerarToken(usuario);
+
+		return ResponseEntity.ok(new TokenDTO(token));
 
 	}
 

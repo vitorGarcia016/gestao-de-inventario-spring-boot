@@ -56,7 +56,7 @@ public class UsuarioController {
 	}
 
 	@GetMapping
-	public List<BuscarUsuarioDTO> getUsuarios() {
+	public ResponseEntity<List<BuscarUsuarioDTO>> getUsuarios() {
 		return service.buscarUsuarios();
 	}
 

@@ -9,11 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoAtualizarFuncionarioException;
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoBuscarFuncionariosException;
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoDeletarFuncionarioException;
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoMudarRoleException;
-import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FalhaAoRecuperarSenhaException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.FuncionarioInvalidoException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.RoleInvalidaException;
 import com.vitor.gestaodeiventario.gestao_de_inventario.infra.exceptions.personalizadas.usuario.SenhaInvalidaException;
@@ -51,18 +46,11 @@ public class UsuarioService {
 			throw new SenhaInvalidaException();
 		}
 
-		try {
+		usuario.setNome(dto.nome());
 
-			usuario.setNome(dto.nome());
+		repositorie.save(usuario);
 
-			repositorie.save(usuario);
-
-			return ResponseEntity.ok().body("Nome do usuario atualizado");
-
-		} catch (Exception e) {
-			// TODO: handle exception
-			throw new FalhaAoAtualizarFuncionarioException();
-		}
+		return ResponseEntity.ok().body("Nome do usuario atualizado");
 
 	}
 
@@ -72,17 +60,11 @@ public class UsuarioService {
 
 		String senhaProvisoria = UUID.randomUUID().toString().substring(0, 6);
 
-		try {
+		String senhaCriptografa = new BCryptPasswordEncoder().encode(senhaProvisoria);
 
-			String senhaCriptografa = new BCryptPasswordEncoder().encode(senhaProvisoria);
+		usuario.setSenha(senhaCriptografa);
 
-			usuario.setSenha(senhaCriptografa);
-
-			repositorie.save(usuario);
-
-		} catch (Exception e) {
-			throw new FalhaAoRecuperarSenhaException();
-		}
+		repositorie.save(usuario);
 
 		emailService.enviarEmail(usuario.getEmail(), "Nova senha de acesso",
 				"A sua senha provisória é: " + senhaProvisoria);
@@ -93,25 +75,18 @@ public class UsuarioService {
 
 	public ResponseEntity<String> mudarRole(AtualizarRoleDTO dto) {
 
-		try {
-
-			if (dto.role() == null) {
-				throw new RoleInvalidaException();
-			}
-
-			Usuario usuario = this.repositorie.findByEmail(dto.email())
-					.orElseThrow(() -> new FuncionarioInvalidoException());
-
-			usuario.setRoleUsuario(dto.role());
-
-			repositorie.save(usuario);
-
-			return ResponseEntity.ok().body("Permissão alterada");
-
-		} catch (Exception e) {
-			// TODO: handle exception
-			throw new FalhaAoMudarRoleException();
+		if (dto.role() == null) {
+			throw new RoleInvalidaException();
 		}
+
+		Usuario usuario = this.repositorie.findByEmail(dto.email())
+				.orElseThrow(() -> new FuncionarioInvalidoException());
+
+		usuario.setRoleUsuario(dto.role());
+
+		repositorie.save(usuario);
+
+		return ResponseEntity.ok().body("Permissão alterada");
 
 	}
 
@@ -127,18 +102,11 @@ public class UsuarioService {
 			throw new SenhaInvalidaException();
 		}
 
-		try {
+		String senhaCriptografada = encoder.encode(dto.senhaNova());
 
-			String senhaCriptografada = encoder.encode(dto.senhaNova());
+		usuario.setSenha(senhaCriptografada);
 
-			usuario.setSenha(senhaCriptografada);
-
-			repositorie.save(usuario);
-
-		} catch (Exception e) {
-			// TODO: handle exception
-			throw new FalhaAoAtualizarFuncionarioException();
-		}
+		repositorie.save(usuario);
 
 		return ResponseEntity.ok().body("Senha atualizada com sucesso");
 
@@ -152,33 +120,20 @@ public class UsuarioService {
 			throw new SenhaInvalidaException();
 		}
 
-		try {
+		repositorie.delete(usuario);
 
-			repositorie.delete(usuario);
-
-			return ResponseEntity.ok().body("Funcionario deletado");
-
-		} catch (Exception e) {
-			// TODO: handle exception
-			throw new FalhaAoDeletarFuncionarioException();
-		}
+		return ResponseEntity.ok().body("Funcionario deletado");
 
 	}
 
-	public List<BuscarUsuarioDTO> buscarUsuarios() {
+	public ResponseEntity<List<BuscarUsuarioDTO>> buscarUsuarios() {
 
-		try {
+		List<Usuario> usuarios = repositorie.findAllByStatusUsuario(StatusUsuario.ATIVO);
 
-			List<Usuario> usuarios = repositorie.findAllByStatusUsuario(StatusUsuario.ATIVO);
+		List<BuscarUsuarioDTO> usuariosDTO = usuarios.stream()
+				.map(e -> new BuscarUsuarioDTO(e.getNome(), e.getEmail(), e.getRoleUsuario())).toList();
 
-			List<BuscarUsuarioDTO> usuariosDTO = usuarios.stream()
-					.map(e -> new BuscarUsuarioDTO(e.getNome(), e.getEmail(), e.getRoleUsuario())).toList();
-
-			return usuariosDTO;
-
-		} catch (Exception e) {
-			throw new FalhaAoBuscarFuncionariosException();
-		}
+		return ResponseEntity.ok().body(usuariosDTO);
 
 	}
 
