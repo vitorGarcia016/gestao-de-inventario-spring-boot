@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -67,6 +68,10 @@ public class EmprestimoService {
 
 		List<Emprestimo> emprestimos = emprestimoRepositorie.findAllByUsuario_idAndStatus(usuario.getId(),
 				StatusEmprestimo.PENDENTE);
+		
+		if(emprestimos.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum emprestimo encontrado");
+		}
 
 		List<EmprestimoDTO> dto = emprestimos.stream().map(e -> new EmprestimoDTO(e.getEquipamento().getId(),
 				e.getEquipamento().getNome(), e.getDataEmprestimo(), e.getDataPrevista())).toList();
@@ -112,9 +117,9 @@ public class EmprestimoService {
 				.map(e -> new ObterEmprestimosDTO(e.getId(), e.getUsuario().getNome(), e.getEquipamento().getNome(),
 						e.getDataEmprestimo(), e.getDataPrevista(), e.getDataDevolvolucao(), e.getStatus()))
 				.toList();
-		
-		if(dto.isEmpty()) {
-			return ResponseEntity.ok().body("Nenhum emprestimo encontrado");
+
+		if (dto.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum emprestimo encontrado");
 		}
 
 		return ResponseEntity.ok().body(dto);
