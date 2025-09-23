@@ -107,4 +107,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
 	}
 
+	@ExceptionHandler(RuntimeException.class)
+	private ResponseEntity<?> RumtimeHandler(RuntimeException e) {
+		MensagemErro mensagemErro = new MensagemErro(HttpStatus.INTERNAL_SERVER_ERROR,
+				"Algo deu errado, tente novamente!");
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensagemErro);
+
+	}
+
 }
